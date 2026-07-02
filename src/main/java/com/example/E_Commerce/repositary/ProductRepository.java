@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProductRepositary extends JpaRepository<Product,Long>
+public interface ProductRepository extends JpaRepository<Product,Long>
 {
     @Query(nativeQuery = true,value = "SELECT * FROM PRODUCT WHERE stock_quantity = 0")
     public List<Product> getOutOfStockItems();

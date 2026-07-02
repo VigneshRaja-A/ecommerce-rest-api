@@ -1,7 +1,7 @@
 package com.example.E_Commerce.service;
 
 import com.example.E_Commerce.entity.Product;
-import com.example.E_Commerce.repositary.ProductRepositary;
+import com.example.E_Commerce.repositary.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +15,7 @@ import java.util.Optional;
 public class ProductService
 {
     @Autowired
-    private ProductRepositary productRepo;
+    private ProductRepository productRepo;
 
 
     public Page<Product> getAllProducts(int page, int size)
