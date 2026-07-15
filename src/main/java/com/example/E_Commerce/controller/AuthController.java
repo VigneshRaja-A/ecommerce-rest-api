@@ -1,13 +1,11 @@
 package com.example.E_Commerce.controller;
 
-import com.example.E_Commerce.dto.LoginDto;
-import com.example.E_Commerce.entity.Users;
-import com.example.E_Commerce.service.UserService;
-import com.example.E_Commerce.util.JWTUtil;
+import com.example.E_Commerce.dto.LoginRequestDto;
+import com.example.E_Commerce.dto.RegisterRequestDto;
+import com.example.E_Commerce.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,26 +13,17 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JWTUtil jwtUtil;
+    private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody Users user)
+    public ResponseEntity<String> registerNewUser(@Valid @RequestBody RegisterRequestDto registerRequestDTO)
     {
-        userService.registerNewUser(user);
+        authService.registerNewUser(registerRequestDTO);
         return ResponseEntity.ok("User registered successfully!!");
     }
     @PostMapping("/login")
-    public ResponseEntity<String> logIn(@RequestBody LoginDto loginDto)
+    public ResponseEntity<String> logIn(@Valid @RequestBody LoginRequestDto loginRequestDto)
     {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginDto.getUsername(),loginDto.getPassword())
-            );
-           return ResponseEntity.ok(jwtUtil.generateJwtToken(loginDto.getUsername()));
+           return ResponseEntity.ok(authService.login(loginRequestDto));
     }
 }
