@@ -1,36 +1,50 @@
 package com.example.E_Commerce.service;
 
+import com.example.E_Commerce.dto.AccountDeleteRequestDto;
+import com.example.E_Commerce.dto.UserResponseDto;
 import com.example.E_Commerce.entity.Users;
-import com.example.E_Commerce.repositary.UserDetailsRepository;
+import com.example.E_Commerce.exception.ItemNotFoundException;
+import com.example.E_Commerce.repository.UserDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
-public class UserService implements UserDetailsService {
-    @Autowired
-    private UserDetailsRepository userDetailsRepositary;
+public class UserService {
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private UserDetailsRepository userDetailsRepository;
 
-    public  Users registerNewUser(Users newUser)
-    {
-        String encodedPassword = passwordEncoder.encode(newUser.getPassword());
-        newUser.setPassword(encodedPassword);
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
-        if(newUser.getRole()== null)
-        {
-            newUser.setRole("ROLE_USER");
-        }
-         return userDetailsRepositary.save(newUser);
+    @Transactional(readOnly = true)
+    public UserResponseDto getUser(Long id) {
+        Users user =  userDetailsRepository.findById(id)
+                .orElseThrow(()-> new ItemNotFoundException("User not found"));
+        return UserResponseDto.builder()
+                .id(user.getId())
+                .email(user.getUsername())
+                .role(user.getRole())
+                .build();
+
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userDetailsRepositary.findByUsername(username).orElseThrow(()-> new UsernameNotFoundException("User not found"));
+    @Transactional
+    public void deleteUser(AccountDeleteRequestDto accountDeleteRequestDto)
+    {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email,accountDeleteRequestDto.getPassword()));
+       userDetailsRepository.deleteByUsername(email);
+    }
+
+    @Transactional
+    public void deleteUserByJWT() {
+       String email = SecurityContextHolder.getContext().getAuthentication().getName();
+       userDetailsRepository.deleteByUsername(email);
     }
 }
