@@ -5,12 +5,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -19,14 +18,15 @@ public class Review
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Email
-    @NotBlank
+    @Email(message = "Please enter a valid email address")
+    @NotBlank(message = "Email is required")
     private String email;
+    @NotNull(message = "rating is required")
     @Min(1)
     @Max(5)
     private Integer rating;
-    @NotBlank
+    @NotBlank(message = "Review is required")
     private String comment;
-    @NotNull
+    @NotNull(message = "Product id is required")
     private Long productId;
 }
